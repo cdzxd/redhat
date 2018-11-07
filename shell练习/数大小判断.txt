@@ -1,0 +1,39 @@
+#!/bin/bash
+read -p "请输入三个数:" a b c
+if [ $a -gt $b ] && [ $a -gt $c ];then
+   echo "$a最大"
+elif  [ $b -gt $a ] && [ $b -gt $c ];then
+   echo "$b最大"
+elif  [ $c -gt $a ] && [ $c -gt $b ];then
+   echo "$c最大"
+fi
+
+
+
+
+ #!/bin/bash
+read -p "请输入三个数:" a b c
+if [ $a -gt $b ];then
+   [ $a -gt $c ] && echo "$a最大" || echo "$c最大"
+else
+   [ $b -gt $c ] && echo "$b最大" || echo "$c最大"
+fi
+~                                                                               
+~    
+
+#!/bin/bash
+read -p "请输入三个数:" a b c
+if [ $a -gt $b ];then
+  if [ $a -gt $c ];then
+     echo "$a最大"
+   else
+     echo "$c最大"
+  fi
+else
+   if [ $b -gt $c ];then
+      echo "$b最大"
+   else
+      echo "$c最大"
+   fi
+fi
+
