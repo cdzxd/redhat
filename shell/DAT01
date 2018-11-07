@@ -1,0 +1,79 @@
+存放当前系统版本信息配置文件/etc/redhat-release
+内存大小、空闲情况配置文件/proc/meminfo
+网卡配置文件/etc/sysconfig/network-scripts/ifcfg-eth0
+主机名配置文件/etc/hostname
+Yum客户端配置文件：/etc/yum.repos.d/*.repo
+永久别名的配置文件/root/.bashrc
+DNS服务器配置文件/etc/resolv.conf 
+所有用户的基本信息配置文件 /etc/passwd
+ nsd07:x:1502:1502::/mnt/nsd07:/bin/bash
+ 用户名:密码占位符:UID:基本组的GID:用户的描述信息:用户的家目录:解释器
+/sbin/nologin:禁止用户登录系统shell
+用户密码信息存放在 /etc/shadow
+组基本信息存放在 /etc/group
+		  /etc/gshadow
+NTP服务器，修改配置文件/etc/chrony.conf
+开机自动挂载文件 /etc/fstab
+计划任务日志文件:/var/log/crond
+计划任务配置文件/var/spool/cron/root
+所有的日志文件：/var/log
+
+
+
+
+
+
+date +%Y%m%d%H%M%S  显示当前时间的年月日时分秒
+
+
+shell
+
+三种引号对变量赋值的影响
+    使用双引号可以界定一个完整字符串
+[root@server0 ~]# echo "a b c "
+a b c 
+[root@server0 ~]# echo a b c
+a b c
+[root@server0 ~]# echo a    b      c    
+a b c
+[root@server0 ~]# echo "a    b     c"
+a    b     c
+     单引号界定一个完整的字符串，并且可以实现屏蔽特殊符号的功能
+[root@server0 ~]# test=11
+[root@server0 ~]# echo $test
+11
+[root@server0 ~]# echo "$test"
+11
+[root@server0 ~]# echo '$test'
+$test
+    使用反撇号(反引号tab键上面那个键)或$()时，可以将命令执行的标准输出作为字符串存储，因此称为命令替换。
+[root@server0 ~]# tar -czf log-`date +%Y%m%d`.tar.gz /var/log
+[root@server0 ~]# ls
+log-20180910.tar.gz
+
+使用read命令从键盘读取变量值
+1）read基本用法
+执行后从会等待并接受用户输入（无任何提示的情况），并赋值给变量str：
+[root@svr5 ~]# read str
+What's happen ?                          //随便输入一些文字，按Enter键提交
+[root@svr5 ~]# echo $str                  //查看赋值结果
+What's happen ?
+为了不至于使用户不知所措、莫名其妙，推荐的做法是结合-p选项给出友好提示：
+[root@svr5 ~]# read -p "请输入一个整数：" i
+请输入一个整数：240
+[root@svr5 ~]# echo $i
+240
+
+2）stty终端显示控制
+将回显功能关闭（stty -echo），
+将回显功能恢复（stty echo）
+[root@svr5 ~]# vim user.sh              //创建一个测试脚本
+#!/bin/bash
+read -p "请输入用户名:"  username              //读取用户名
+stty -echo                                  //关闭回显
+read -p "请输入密码:"  passwd              //读取密码
+stty echo                                  //恢复回显
+echo ""                                      //恢复回显后补一个空行
+useradd "$username"
+echo "$passwd" | passwd --stdin "$username"
+

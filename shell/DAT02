@@ -1,0 +1,132 @@
+存放当前系统版本信息配置文件/etc/redhat-release
+内存大小、空闲情况配置文件/proc/meminfo
+网卡配置文件/etc/sysconfig/network-scripts/ifcfg-eth0
+主机名配置文件/etc/hostname
+Yum客户端配置文件：/etc/yum.repos.d/*.repo
+永久别名的配置文件/root/.bashrc
+DNS服务器配置文件/etc/resolv.conf 
+所有用户的基本信息配置文件 /etc/passwd
+ nsd07:x:1502:1502::/mnt/nsd07:/bin/bash
+ 用户名:密码占位符:UID:基本组的GID:用户的描述信息:用户的家目录:解释器
+/sbin/nologin:禁止用户登录系统shell
+用户密码信息存放在 /etc/shadow
+组基本信息存放在 /etc/group
+		  /etc/gshadow
+NTP服务器，修改配置文件/etc/chrony.conf
+开机自动挂载文件 /etc/fstab
+计划任务日志文件:/var/log/crond
+计划任务配置文件/var/spool/cron/root
+所有的日志文件：/var/log
+
+
+
+
+
+
+date +%Y%m%d%H%M%S  显示当前时间的年月日时分秒
+
+
+Shell中的数值运算
+使用expr、$[ ]、let等整数运算工具：定义变量X=1234，然后计算X与78的四则运算及求模结果
+使用bc实现小数运算操作：以交互方式计算12.34与56.78的四则运算结果，另外再以非交互方式重复上述计算，最多显示4位小数
+乘法操作应采用 \* 转义，避免被作为Shell通配符；参与运算的整数值与运算操作符之间需要以空格分开，引用变量时必须加$符号。
+[root@server0 ~]# expr 3 \* 3
+9
+[root@server0 ~]# expr 3 * 3
+expr: 语法错误
+[root@server0 ~]# expr 3 '*' 3
+9
+
+[root@server0 ~]# expr 10 / 2
+5
+[root@server0 ~]# a=23
+[root@server0 ~]# expr $a + 12
+35
+[root@server0 ~]# expr 10 % 2
+0
+[root@server0 ~]# expr 11 / 2
+5
+使用$[]或$(())表达式:乘法操作*无需转义，运算符两侧可以无空格；引用变量可省略 $ 符号；计算结果替换表达式本身，可结合echo命令输出。
+同样对于变量X=1234，分别计算与78的加减乘除和求模运算结果：
+[root@svr5 ~]# X=1234   
+[root@svr5 ~]# echo $[X+78]
+1312
+[root@svr5 ~]# echo $[X-78]
+1156
+[root@svr5 ~]# echo $[X*78]
+96252
+[root@svr5 ~]# echo $[X/78]
+15
+[root@svr5 ~]# echo $[X%78]
+64
+[root@server0 ~]# i=2
+[root@server0 ~]# echo $[++i]
+3
+expr或$[]、$(())方式只进行运算，并不会改变变量的值；而let命令可以直接对变量值做运算再保存新的值。因此变量X=1234，在执行let运算后的值会变更；另外，let运算操作并不显示结果，但是可以结合echo命令来查看：
+[root@svr5 ~]# X=1234  
+[root@svr5 ~]# let y=X+22
+[root@svr5 ~]# echo $y
+1256
+[root@svr5 ~]# let X++;  echo $X        # X++(X=X+1)
+[root@svr5 ~]# let X--;  echo $X        # X--(X=X-1)
+[root@svr5 ~]# let X+=78 ; echo $X        # X+=78(X=X+78)
+[root@svr5 ~]# let X-=78 ; echo $X     # X-=78(X=X-78)
+[root@svr5 ~]# let X*=78 ; echo $X     # X*=78(X=X*78)
+[root@svr5 ~]# let X/=78 ; echo $X     # X/=78(X=X/78)
+[root@svr5 ~]# let X%=78 ; echo $X     # X%=78(X=X%78)
+
+小数运算工具   (bc相当于linux系统里的计算器）bc回车进入bc计算器,输入quit退出
+bc交互式运算：先执行bc命令进入交互环境，然后再输入需要计算的表达式
+[root@server0 ~]# bc
+bc 1.06.95
+Copyright 1991-1994, 1997, 1998, 2000, 2004, 2006 Free Software Foundation, Inc.
+This is free software with ABSOLUTELY NO WARRANTY.
+For details type `warranty'. 
+1.2+2.3
+3.5
+2/10
+0
+scale=2
+2/10
+.20
+3/10
+.30
+quit
+bc非交互式运算：将需要运算的表达式通过管道操作交给bc运算。注意，小数位的长度可采用scale=N限制，除此以外也受参与运算的数值的小数位影响。
+[root@server0 ~]# echo "1.2+2.8" | bc
+4.0
+[root@server0 ~]# echo "1.2+2.8;2.3*5" | bc
+4.0
+11.5
+[root@server0 ~]# echo "scale=3;2/10" | bc
+.200
+
+特例：
+[root@server0 ~]# echo "3>8" | bc
+0
+[root@server0 ~]# echo "3>2" | bc
+1
+
+条件测试的基本用法:
+使用“test 表达式”或者[ 表达式 ]都可以，表达式两边至少要留一个空格。
+条件测试操作本身不显示出任何信息。测试的条件是否成立主要体现在命令执行后的返回状态（即 $?），所以可以在测试后查看变量$?的值来做出判断，或者结合&&、||等逻辑操作显示出结果（或作其他操作） 。
+字符串测试
+1）== 比较两个字符串是否相同;2）!= 比较两个字符串是否不相同
+检查当前用户是否为root。
+当root用户执行时：
+[root@svr5 ~]# [ $USER == "root" ] 
+[root@svr5 ~]# echo $?
+
+一行执行多条命令的情况
+A && B                        //仅当A命令执行成功，才执行B命令
+A || B                        //仅当A命令执行失败，才执行B命令
+A ;  B                        //执行A命令后执行B命令，两者没有逻辑关系
+A && B || C                   //当A执行失败后，执行C：当A成功B失败后执行C：当A、B执行成功后，不执行C
+
+整数值比较
+-eq 比较两个数是否相等                        equal
+-ne 比较两个数是否不相等                      not equal
+-gt 比较前面的整数是否大于后面的整数         greater  than
+-ge 比较前面的整数是否大于或等于后面的整数   greater or equal
+-lt 比较前面的整数是否小于后面的整数          less than
+-le 比较前面的整数是否小于或等于后面的整数    less or equal
