@@ -1,0 +1,437 @@
+庞丽静
+静静老师
+panglj@tedu.cn
+
+第3阶段  4周 (工作岗位 DBA  8k 10k+)  15K
+Linux数据库管理 关系型数据（MySQL） 
+                非关系型数据 Redis 和 MongoDB
+IDC监控
+Linux安全与监控 系统安全 服务安全  数据安全 
+                监控Zabbix
++++++++++++++++++++++++++++++++++++++++++++++++
+DBA1基础
+day01
+搭建数据服务器
+数据库服务的基本使用
+数据类型
+克隆1台 REHL7 虚拟机  配置如下：
+配置YUM源
+systemctl  stop firewalld
+setenforce  0
+ip地址  192.168.4.50 主机名mysql50
+  
+软件包下载 
+ftp服务器  172.40.50.117
+2018/soft/mysql/mysql-5.7.17.tar
+
+
+随堂命令文件   ftp服务器  172.40.50.117
+nsd1808/dbaX_dayXX.txt
+++++++++++++++++++++++++++++++++++
+数据库 ：存储数据的仓库 
+
+数据包括哪些？ 小电影  照片 音乐 文本文件
+
+哪些行业在使用数据库：金融机构  网站  
+
+提供数据库服务的软件有哪些？  Oracle  DB2  SQL server
+                             MySQL
+                             (Mariadb)
+开源 不等于 免费
+
+开源软件：
+商业软件：
+跨平台： Windows  Unix   Linux
+
+MySQL的特点：
+适合中小型企业的关系型数据库服务器软件
+支持多种操作系统Windows  Unix   Linux
+支持多种开发语言 php perl python
+可移植性好
++++++++++++++++++++++++++++++++++
+使用MySQL软件搭建数据库服务：
+克隆1台 REHL7 虚拟机  配置如下：
+配置YUM源
+systemctl  stop firewalld
+setenforce  0
+ip地址  192.168.4.50 主机名mysql50
+
+软件包下载 
+ftp服务器  172.40.50.117
+2018/soft/mysql/mysql-5.7.17.tar
+
+准备环境 10分钟 到 09:54
+
+休息10 分钟 到 10:05
+++++++++++++++++++++++++++++
+]# tar -xvf mysql-5.7.17.tar
+]# ls  *.rpm
+]# yum -y  install  perl-JSON ----->>安装依赖包
+
+]# rpm -Uvh mysql-community-*.rpm --->>升级安装，当已经安装了低版本的就直接安装最高版本
+
+]# rpm  -qa  | grep  -i  mysql
+]# rm  -rf *.rpm
+
+[root@mysql50 ~]# systemctl start mysqld
+[root@mysql50 ~]# systemctl enable mysqld
+
+]# netstat -utnlp  | grep  :3306 
+
+]# ps -C  mysqld  （单独查看某进程是否存在）或 ps aux  | grep  mysqld
+
+]#ls /var/lib/mysql-------->>数据库目录
+
+]# ls /etc/my.cnf----------->>主配置文件
+
+]# ls /var/log/mysqld.log---------->>日志文件
+
+]# grep password /var/log/mysqld.log--------->>查询初始密码（每个人不一样）初始密码登陆后不能执行命令操作，所以必须修改登陆密码
+
+]# mysql -hlocalhost -uroot -p'*WG9;l9Mcnhk'--------->>使用初始密码登陆
+
+mysql> alter user  root@"localhost" identified by "123456";------>>修改密码
+
+mysql> alter user  root@"localhost"  identified by "123qqq...A";
+
+mysql> quit
+
+]# mysql  -hlocalhost -uroot  -p123qqq...A---------->>利用新密码登陆
+]#mysql> show databases;
+
+
+在IP地址是 192.168.4.51的主机上运行mysql服务 
+数据管理员root本机登录密码是123qqq...A
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+数据库服务的基本使用：
+1 修改密码策略：
+
+默认的数据库管理帐号
+root允许从localhost访问
+首次登陆密码在安装时随机生成，存储在错误日值文件里
+
+validate_password_policy验证密码策略（如下）
+0 or LOW              长度
+1 or MEDIUM（默认）      长度；数字，小写/大写，和特殊字符
+2 or STRONG            长度；数字，小写/大写和特殊字符；字典文件
+
+]# mysql  -hlocalhost -uroot -p123qqq...A
+
+mysql> show  variables  like "%password%";-------->>查看登陆密码相关的变量
+
+mysql> set  global validate_password_policy=0;------->>修改密码策略，值验证长度
+
+mysql> set  global validate_password_length=6;------->>修改密码长度
+mysql> alter user  root@"localhost" identified by "123456";
+mysql> quit
+
+]# systemctl  stop  mysqld
+
+（要想是修改的密码重启后有效就必须修改配置文件如下：）
+]# vim /etc/my.cnf
+[mysqld]
+validate_password_policy=0
+validate_password_length=6
+
+
+]# systemctl  start  mysqld
+
+]# mysql  -hlocalhost -uroot -p123456
+mysql> show databases;
+练习10分钟 到 11:40
+
+2 把数据存储到数据库服务器上过程：
+1 连接服务 2 建库  3 建表  4 插入记录  5 断开连接
+
+专业术语：DB  DBMS   DBS
+使用SQL命令管理数据库：
+SQL命令 使用规则？
+
+3 数据库服务的基本使用
+
+数据库管理命令：
+数据库名，命名规则？
+查看服务上已有库  mysql> create  database  gamedb;
+建库 切换库  删除库  查看库里已有的表
+
+
+
+表管理命令：
+查看已有的表   练习10 分钟 到 15:50
+create  database  studb;
+use studb;
+show  tables;
+
+建表 create table studb.stuinfo( name char(10), age int );---->>该表有两列，列与列之间用逗号隔开
+
+use studb;
+
+show  tables;
+
+查看表结构  desc  studb（库名）.stuinfo（表名）;
+
+use  studb;------>>进入库
+
+show tables;------>>查看该库里的表
+
+desc stuinfo;------->>查看表stuinfo的表结构（desc----describe）
+
+desc  mysql.user;------>>查看mysql库里的表user的表结构
+
+记录管理命令：
+查看所有表记录   select  * from  studb.stuinfo;
+
+插入表记录 insert  into  studb.stuinfo values("bob",21),("tom",23);
+
+修改表记录
+ update studb.stuinfo set age=19 where name="bob";
+ update studb.stuinfo set age=18 ;
+ select  * from  studb.stuinfo;
+
+删除所有表记录
+delete from  studb.stuinfo where name="tom";------>>删除数据库studb里的表stuinfo的name=tom的这一行
+
+delete from  studb.stuinfo ;--------->>删除数据库studb里的表stuinfo里的所有内容
+
+select  * from  studb.stuinfo;
+
+删除表 drop  table  studb.stuinfo;
+
+休息 10 分钟  到 15:10
++++++++++++++
+设置表使用的字符集
+mysql> create table 学生表( 姓名 char(3), 年龄 int )  DEFAULT CHARSET=utf8;----->>这是设置表使用的字符集（这样后就可以使用汉字了）
+
+常见的信息种类
+1、数值型：体重、身高、成绩、工资
+2、字符型：姓名、工作单位、通信住址
+3、枚举型：兴趣爱好、性别
+4、日期时间型：出生日期、注册时间
+
+数值类型：
+类型          大小         范围（有符号）      范围（无符号）        用途
+
+TINYINT    1字节        -128～127            0～255               微小整数
+
+SMALLINT   2字节       -32768～32767        0～65535             小整数
+
+MEDIUMINT  3字节       -2^23～2^23-1         0～2^24-1            中整数
+
+INT        4字节        -2^31～2^31-1        0～2^32-1             大整数
+
+BIGINT     8字节        -2^63～2^63-1        0～2^64-1             极大整数
+
+FLOAT      4字节                                                    单精度浮点数
+
+DOUBLE     8字节                                                    双精度浮点数
+
+DECIMAL       对DECIMAL（M，D），其中M为有效位数、D为小数位数，M应大于D，占用M+2字节
+
+unsinged      使用无符号存储范围
+
+
+浮点型
+定义格式：float（总端度，小数位数）
+当字段值与类型不匹配时，字段值作为0处理
+数值超出范围时，仅保存最大/最小值
+
+
+字符类型
+定长：char（字符数）
+      最大长度255字符
+      不够值定字符数时在右边用空格补齐
+      字符数超出时，无法写入数据
+
+边长：varchar（字符数）
+       按数据实际大小分配存储空间
+       字符数超出时，无法写入数据
+
+大文本类型：text/blob
+       字符数大于65535存储时使用
+
+日期时间类型
+    日期时间，DATETIME
+    占用8个字节
+    范围：1000-01-01 00：00：00.000000
+          ～9999-12-31 23：59：59.999999
+
+    日期时间，TIMESTAMP
+     占用4字节
+     范围：1970-01-01 00:00:00.000000
+           ~2038-01-19 03:14:07.999999
+
+     日期，DATE
+       占用4个字节
+       范围：0001-01-01～9999-12-31
+
+     年份，YEAR
+       占用1个字节
+       范围：1902～2155
+
+      时间，TIME
+       占用3个字节
+       格式：HH：MM：SS
+ 
+       关于日期时间字段
+        当未给TIMESTAMP字段赋值时，自动以当前系统时间赋值，而DATETIME字段默认赋值为NULL
+  
+         YEAR年份的处理
+            默认用4位数字表示
+            当只用2位数字赋值时，
+            01～69视为2001～2069
+            70～99视为1970～1999
+         
+时间函数------------>>无需库、表，可直接调用。使用select指令输出函数结果
+mysql>select date(now()),time(now());
+类型             用途
+now()        获取系统当前日期和时间 
+
+year()       获取指定时间中的年份
+
+day()        获取指定时间中的日期
+
+sleep(N)     休眠N秒
+
+curdate()    获取当前的系统日期
+
+curtime()    获取当前的系统时刻
+
+month()      获取指定时间中的月份
+
+date()       获取指定时间中的日期
+
+time()       获取指定时间中的时刻
+
+
+枚举型: 1、从给定值集合中选择单个值，enum
+           定义格式：enum（值1，值2，值N）
+        2、从给定值集合中选择一个或多个值，set
+           定义格式：set（值1，值2，值N）
+mysql> create table db1.tea(name varchar(4),gender enum("boy","girl"),interest set("book","film","music","football"));
+
+
+mysql> insert into 学生表 values ("张三丰",19);
+Query OK, 1 row affected (0.08 sec)
+
+mysql> select  * from 学生表;
++-----------+--------+
+| 姓名      | 年龄   |
++-----------+--------+
+| 张三丰    |     19 |
++-----------+--------+
+
+
+mysql> create table  t1(
+    -> age  tinyint unsigned,
+    -> pay  float(7,2)
+    -> );
+
+insert  into  t1 values(19,28000);
+insert  into  t1 values(19.23 , 21.22);
+select  * from  t1;
+
+mysql> create table  t2 (level tinyint );
+insert  into  t2 values(-19);
+insert  into  t2 values(129);
+insert  into  t2 values(7);
+
+mysql> create table t3(
+    -> name char(3),
+    -> homedir varchar(15),
+    -> email varchar(30)
+    -> );
+
+mysql> insert into  t3 values
+("bob","beijing","bob@163.com");
+
+mysql> select  * from t3;
+
+mysql> create table  t4(
+    -> name char(10),
+    -> birthday  date,
+    -> start year,
+    -> upwork time,
+    -> party datetime
+    -> );
+
+mysql> insert into  t4  
+values("bob",20181120,1990,083000,20181118203000);
+
+mysql> select  * from t4;
+
+mysql> select  now();
+mysql> select  year(now());
+mysql> select  month(now());
+mysql> select  day(now());
+mysql> select  date(now());
+mysql> select  time(now());
+
+mysql> select  curdate();
++------------+
+| curdate()  |
++------------+
+| 2018-11-16 |
++------------+
+mysql> select  curtime();
++-----------+
+| curtime() |
++-----------+
+| 17:48:43  |
++-----------+
+
+
+mysql> insert into  t4  
+values
+("tom",date(now()),year(20171120194512),time(now()),
+now());
+
+
+create table t5(
+    -> name char(10),
+    -> likes  set("eat","sleep","game","film"),
+    -> sex enum("boy","girl","no")
+    -> );
+mysql> desc  t5;
+mysql> insert into  t5 
+values("bob","it,book","man");
+mysql> insert into  t5 
+values("bob","eat,sleep","man");
+
+mysql> insert into  t5 
+values("bob","eat,sleep","boy");
+mysql> select  * from t5;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
